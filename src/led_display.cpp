@@ -3,6 +3,14 @@
 #include "util.h"
 
 namespace LED {
+    void displayState(bool l3, bool l2, bool l1, bool l0)
+    {
+        digitalWrite(PIN::LED_1, l0);
+        digitalWrite(PIN::LED_2, l1);
+        digitalWrite(PIN::LED_4, l2);
+        digitalWrite(PIN::LED_8, l3);
+    }
+
     void displayNumber(int number)
     {
         digitalWrite(PIN::LED_1, IS_BIT_SET(number, 0));

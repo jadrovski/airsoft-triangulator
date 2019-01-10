@@ -5,6 +5,7 @@
 #include "buzzer.h"
 #include "timeline.h"
 #include "key.h"
+#include "menu.h"
 
 #define EXIT_FUNCTION_IF_NO_KEY() \
     if (!KEY::isConnected)        \
@@ -57,10 +58,10 @@ void readBtns()
 
 void serviceLoop()
 {
+    MENU::setMenuItem(2, 6);
     while (1)
     {
-        LED::displayNumberEncoded(1085);
-        delay(2000);
+        MENU::displayInvalidate();
     }
 }
 
