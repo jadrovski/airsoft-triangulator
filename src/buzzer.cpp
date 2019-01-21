@@ -1,11 +1,11 @@
 #include <Arduino.h>
-#include "pin.h"
+#include "const.h"
 
 namespace BUZZER {
     void tweet(unsigned long ms)
     {
-        tone(PIN::BUZZER, random(300, 1500));
+        tone(CONST::PIN_BUZZER, random(300, 1500));
         delay(ms);
-        noTone(PIN::BUZZER);
+        noTone(CONST::PIN_BUZZER);
     }
 }

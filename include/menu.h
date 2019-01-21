@@ -6,4 +6,4 @@ namespace MENU {
     void setMenuItem(int idx1, int idx2);
 }
 
-#endif MENU_H_
+#endif
