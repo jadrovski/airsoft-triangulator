@@ -16,7 +16,7 @@ namespace GAME {
             return -1;
         }
         
-        return 0; // test
+        return 1; // test
 
         int adcRaw = analogRead(CONST::PIN_KEY_ADC);
         if (adcRaw)

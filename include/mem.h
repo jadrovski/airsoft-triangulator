@@ -2,8 +2,8 @@
 #define MEM_H_
 
 namespace MEM {
-    void writeLong(int address, long value);
-    long readLong(int address);
+    void writeULong(int address, unsigned long value);
+    unsigned long readULong(int address);
 }
 
 #endif

@@ -11,8 +11,6 @@
 unsigned int tweetTimerMillis    = 0;
 unsigned int interactTimerMillis = 0;
 
-bool interactedWithUser = false;
-
 void welcome()
 {
     for (int i = 0; i < 10; i++)
@@ -36,7 +34,20 @@ void waitCommandBlink()
 
 bool readInteracted()
 {
-    return false;
+    return MEM::readULong(GAME::getConnectedKeyIdx() * 4) != 0;
+}
+
+void writeInteracted()
+{
+    MEM::writeULong(GAME::getConnectedKeyIdx() * 4, millis());
+}
+
+void wipeResults()
+{
+    for (unsigned int i = 0; i < CONST::GAME_TEAMS_COUNT; i++)
+    {
+        MEM::writeULong(i * 4, 0);
+    }
 }
 
 void serviceAction()
@@ -51,28 +62,34 @@ void serviceAction()
 
 void interactWithUserAction()
 {
-    waitCommandBlink(); 
-    CONTROL::updateState();
-
-    interactTimerMillis = 0;
-
-    while (
-        CONTROL::areAllPressed() &&
-        interactTimerMillis <= CONST::TIMELINE_INTERACT_MILLIS
-    ) {
-        unsigned long lastMillis = millis();
-        delay(10);
-        LED::displayNumberBinary(random(0, 15));
-        interactTimerMillis += (millis() - lastMillis);
-        
+    while(1)
+    {
+        waitCommandBlink(); 
         CONTROL::updateState();
 
+        interactTimerMillis = 0;
+
+        while (
+            CONTROL::areAllPressed() &&
+            interactTimerMillis <= CONST::TIMELINE_INTERACT_MILLIS
+        ) {
+            unsigned long lastMillis = millis();
+            delay(10);
+            LED::displayNumberBinary(random(0, 15));
+            interactTimerMillis += (millis() - lastMillis);
+            
+            CONTROL::updateState();
+
+            EXIT_FUNCTION_IF_NO_KEY();
+        }
+        LED::clear();
+        if (interactTimerMillis > CONST::TIMELINE_INTERACT_MILLIS)
+        {
+            writeInteracted();
+            return;
+        }
+        
         EXIT_FUNCTION_IF_NO_KEY();
-    }
-    LED::clear();
-    if (interactTimerMillis > CONST::TIMELINE_INTERACT_MILLIS)
-    {
-        interactedWithUser = true;
     }
 }
 
@@ -87,9 +104,41 @@ void showRadiusAction()
     }
 }
 
+void printResultTable()
+{
+    for (unsigned int i = 0; i < CONST::GAME_TEAMS_COUNT; i++)
+    {
+        Serial.print("TEAM #");
+        Serial.print(i);
+        Serial.print(" CHECK-IN: ");
+        long checkIn = MEM::readULong(i * 4);
+        if (checkIn == 0)
+        {
+            Serial.print("NONE");
+        }
+        else
+        {
+            Serial.print(checkIn);
+        }
+        Serial.println();
+    }
+}
+
 void setup()
 {
-    //Serial.begin(9600);
+    CONTROL::updateState();
+    delay(CONST::TIMELINE_CONTROL_DEBOUNCE_MILLIS);
+    delay(10);
+    CONTROL::updateState();
+    if (CONTROL::isBtn1Pressed() && !CONTROL::isBtn2Pressed())
+    {
+        wipeResults();
+        BUZZER::tweet(1000);
+    }
+    
+    Serial.begin(9600);
+
+    printResultTable();
 
     pinMode(CONST::PIN_KEY_WAKE_UP, INPUT);
 
@@ -100,11 +149,6 @@ void setup()
 
     pinMode(CONST::PIN_BTN_1, INPUT);
     pinMode(CONST::PIN_BTN_2, INPUT);
-
-    //wipe mem
-    MEM::writeLong(0, 0);
-    MEM::writeLong(3, 0);
-    MEM::writeLong(6, 0);
 
     attachInterrupt(0, GAME::updateKeyConnectedFlag, CHANGE);
 }
@@ -126,12 +170,12 @@ void loop()
             } 
             else
             {
-                interactedWithUser = readInteracted();
-                if (!interactedWithUser)
+                bool interacted = readInteracted();
+                if (!interacted)
                 {
                     interactWithUserAction();
                 }
-                else if (interactedWithUser)
+                else
                 {
                     showRadiusAction();
                 }
