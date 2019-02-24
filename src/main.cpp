@@ -5,7 +5,7 @@
 #include "control.h"
 #include "led_display.h"
 #include "buzzer.h"
-#include "menu.h"
+//#include "menu.h"
 #include "game.h"
 
 unsigned int tweetTimerMillis    = 0;
@@ -75,7 +75,10 @@ void interactWithUserAction()
         ) {
             unsigned long lastMillis = millis();
             delay(10);
-            LED::displayNumberBinary(random(0, 15));
+
+            LED::progress((int) ((interactTimerMillis / (float) CONST::TIMELINE_INTERACT_MILLIS) * 100));
+            LED::displayInvalidate();
+
             interactTimerMillis += (millis() - lastMillis);
             
             CONTROL::updateState();
