@@ -10,7 +10,7 @@ namespace CONST {
     const unsigned int GAME_TEAMS_COUNT       = 2;
     const          int GAME_TEAM_RAW_VALUES[] = {
         415, // 15kOhm idx = 0 # SUPER 
-        205  // 39kOhm idx = 1
+        205  // 39kOhm idx = 1 / RED
     };
     const unsigned int GAME_SUPER_KEY_IDX     = 0;
     
