@@ -2,13 +2,15 @@
 #define CONST_H_
 
 namespace CONST {
+    const bool         DEBUG                  = true;
+    const unsigned int VERSION                = 1;
     const unsigned int GAME_DEVICE_ID         = 1; // 1, 2, 3
     const unsigned int GAME_RADIUSES[]        = {750, 300, 495};
     
     const unsigned int GAME_TEAMS_COUNT       = 2;
-    const unsigned int GAME_TEAM_RAW_VALUES[] = {
-        130, // super (idx = 0) 
-        205
+    const          int GAME_TEAM_RAW_VALUES[] = {
+        415, // 15kOhm idx = 0 # SUPER 
+        205  // 39kOhm idx = 1
     };
     const unsigned int GAME_SUPER_KEY_IDX     = 0;
     

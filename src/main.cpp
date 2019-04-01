@@ -5,7 +5,7 @@
 #include "control.h"
 #include "led_display.h"
 #include "buzzer.h"
-//#include "menu.h"
+#include "menu.h"
 #include "game.h"
 
 unsigned int tweetTimerMillis    = 0;
@@ -48,16 +48,18 @@ void wipeResults()
     {
         MEM::writeULong(i * 4, 0);
     }
+    Serial.println("Results wiped!");
 }
 
 void serviceAction()
 {
     welcome();
-    /*MENU::setMenuItem(2, 6);
+    MENU::setMenuItem(2, 6);
     while (1)
     {
-        MENU::displayInvalidate();
-    }*/
+        LED::displayInvalidate();
+        EXIT_FUNCTION_IF_NO_KEY();
+    }
 }
 
 void interactWithUserAction()
@@ -129,20 +131,8 @@ void printResultTable()
 
 void setup()
 {
-    CONTROL::updateState();
-    delay(CONST::TIMELINE_CONTROL_DEBOUNCE_MILLIS);
-    delay(10);
-    CONTROL::updateState();
-    if (CONTROL::isBtn1Pressed() && !CONTROL::isBtn2Pressed())
-    {
-        wipeResults();
-        BUZZER::tweet(1000);
-    }
+    Serial.begin(115200);
     
-    Serial.begin(9600);
-
-    printResultTable();
-
     pinMode(CONST::PIN_KEY_WAKE_UP, INPUT);
 
     pinMode(CONST::PIN_LED_1, OUTPUT);
@@ -152,6 +142,25 @@ void setup()
 
     pinMode(CONST::PIN_BTN_1, INPUT);
     pinMode(CONST::PIN_BTN_2, INPUT);
+
+    CONTROL::updateState();
+    
+    delay(CONST::TIMELINE_CONTROL_DEBOUNCE_MILLIS);
+    delay(10);
+    
+    CONTROL::updateState();
+    if (CONTROL::isBtn1Pressed() && !CONTROL::isBtn2Pressed())
+    {
+        wipeResults();
+        BUZZER::tweet(1000);
+    }
+    
+    Serial.print("VERSION: "); Serial.print(CONST::VERSION); Serial.print("\n");
+    Serial.print("DEVICE:  "); Serial.print(CONST::GAME_DEVICE_ID); Serial.print("\n");
+    
+    printResultTable();
+
+    delay(10);
 
     attachInterrupt(0, GAME::updateKeyConnectedFlag, CHANGE);
 }

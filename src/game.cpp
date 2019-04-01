@@ -11,20 +11,22 @@ namespace GAME {
 
     int getConnectedKeyIdx()
     {
-        if (!isKeyConnectedFlag)
-        {
+        if (!isKeyConnectedFlag) {
             return -1;
         }
-        
-        return 1; // test
 
         int adcRaw = analogRead(CONST::PIN_KEY_ADC);
-        if (adcRaw)
-        {
-            for (unsigned int i = 0; i < CONST::GAME_TEAMS_COUNT; i++)
-            {
-                if (abs(adcRaw - CONST::GAME_TEAM_RAW_VALUES[i]) < 10)
-                {
+        
+        if (CONST::DEBUG) {
+            Serial.print("RAW KEY: "); Serial.print(adcRaw); Serial.print("\n");
+        }
+        
+        if (adcRaw) {
+            for (unsigned int i = 0; i < CONST::GAME_TEAMS_COUNT; i++) {
+                if (abs(adcRaw - CONST::GAME_TEAM_RAW_VALUES[i]) < 10) {
+                    if (CONST::DEBUG) {
+                        Serial.print("IDX KEY: "); Serial.print(i); Serial.print("\n");
+                    }
                     return i;
                 }
             }

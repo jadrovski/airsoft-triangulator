@@ -197,6 +197,10 @@ namespace LED {
 
     void progress(int percentage)
     {
+        if (CONST::DEBUG) {
+            Serial.print("PROGRESS: "); Serial.print(percentage); Serial.print("\n");
+        }
+    
         LED_STATE s0 = LED_STATE::OFF;
         LED_STATE s1 = LED_STATE::OFF;
         LED_STATE s2 = LED_STATE::OFF;
