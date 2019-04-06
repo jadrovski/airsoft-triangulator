@@ -10,4 +10,11 @@ namespace DEBUG {
             Serial.println(value);
         }
     }
+
+    void msg(const char msg[])
+    {
+        if (CONST::DEBUG) {
+            Serial.println(msg);
+        }
+    }
 }

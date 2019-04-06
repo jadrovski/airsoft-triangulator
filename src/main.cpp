@@ -47,7 +47,7 @@ void wipeResults()
     for (unsigned int i = 0; i < CONST::GAME_TEAMS_COUNT; i++) {
         MEM::writeULong(i * 4, 0);
     }
-    Serial.println("Results wiped!");
+    DEBUG::msg("### RESULTS WIPED ###");
 }
 
 void serviceAction()
@@ -146,8 +146,8 @@ void setup()
         BUZZER::tweet(1000);
     }
     
-    Serial.print("VERSION: "); Serial.print(CONST::VERSION); Serial.print("\n");
-    Serial.print("DEVICE:  "); Serial.print(CONST::GAME_DEVICE_ID); Serial.print("\n");
+    DEBUG::log("VERSION", CONST::VERSION);
+    DEBUG::log("DEVICE",  CONST::GAME_DEVICE_ID);
     
     printResultTable();
 
@@ -161,7 +161,7 @@ void loop()
     GAME::updateKeyConnectedFlag();
 
     if (GAME::isKeyConnected()) {
-        DEBUG::log("CONNECTED KEY", GAME::getConnectedKeyIdx());
+
         delay(CONST::TIMELINE_BEFORE_WELCOME_DELAY_MILLIS);
         welcome();
 

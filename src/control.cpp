@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "const.h"
+#include "debug.h"
 
 namespace CONTROL {
     int btn1State;
@@ -44,6 +45,7 @@ namespace CONTROL {
             if (btn1 != btn1State)
             {
                 btn1State = btn1;
+                DEBUG::log("BUTTON 1", btn1);
             }
         }
         if ((millis() - lastDebounceTimeBtn2) > CONST::TIMELINE_CONTROL_DEBOUNCE_MILLIS)
@@ -51,6 +53,7 @@ namespace CONTROL {
             if (btn2 != btn2State)
             {
                 btn2State = btn2;
+                DEBUG::log("BUTTON 2", btn2);
             }
         }
 
