@@ -1,7 +1,5 @@
 #include <Arduino.h>
 #include <LowPower.h>
-#include "MelodyUtils.h"
-#include "pitches.h"
 #include "mem.h"
 #include "const.h"
 #include "control.h"
@@ -9,14 +7,14 @@
 #include "buzzer.h"
 #include "menu.h"
 #include "game.h"
+#include "debug.h"
 
 unsigned int tweetTimerMillis    = 0;
 unsigned int interactTimerMillis = 0;
 
 void welcome()
 {
-    for (int i = 0; i < 10; i++)
-    {
+    for (int i = 0; i < 10; i++) {
         EXIT_FUNCTION_IF_NO_KEY();
 
         LED::displayNumberBinary(15);
@@ -46,8 +44,7 @@ void writeInteracted()
 
 void wipeResults()
 {
-    for (unsigned int i = 0; i < CONST::GAME_TEAMS_COUNT; i++)
-    {
+    for (unsigned int i = 0; i < CONST::GAME_TEAMS_COUNT; i++) {
         MEM::writeULong(i * 4, 0);
     }
     Serial.println("Results wiped!");
@@ -57,8 +54,7 @@ void serviceAction()
 {
     welcome();
     MENU::setMenuItem(2, 6);
-    while (1)
-    {
+    while (1) {
         LED::displayInvalidate();
         EXIT_FUNCTION_IF_NO_KEY();
     }
@@ -66,8 +62,7 @@ void serviceAction()
 
 void interactWithUserAction()
 {
-    while(1)
-    {
+    while (1) {
         waitCommandBlink(); 
         CONTROL::updateState();
 
@@ -90,8 +85,7 @@ void interactWithUserAction()
             EXIT_FUNCTION_IF_NO_KEY();
         }
         LED::clear();
-        if (interactTimerMillis > CONST::TIMELINE_INTERACT_MILLIS)
-        {
+        if (interactTimerMillis > CONST::TIMELINE_INTERACT_MILLIS) {
             writeInteracted();
             return;
         }
@@ -113,18 +107,14 @@ void showRadiusAction()
 
 void printResultTable()
 {
-    for (unsigned int i = 0; i < CONST::GAME_TEAMS_COUNT; i++)
-    {
+    for (unsigned int i = 0; i < CONST::GAME_TEAMS_COUNT; i++) {
         Serial.print("TEAM #");
         Serial.print(i);
         Serial.print(" CHECK-IN: ");
         long checkIn = MEM::readULong(i * 4);
-        if (checkIn == 0)
-        {
+        if (checkIn == 0) {
             Serial.print("NONE");
-        }
-        else
-        {
+        } else {
             Serial.print(checkIn);
         }
         Serial.println();
@@ -151,8 +141,7 @@ void setup()
     delay(10);
     
     CONTROL::updateState();
-    if (CONTROL::isBtn1Pressed() && !CONTROL::isBtn2Pressed())
-    {
+    if (CONTROL::isBtn1Pressed() && !CONTROL::isBtn2Pressed()) {
         wipeResults();
         BUZZER::tweet(1000);
     }
@@ -167,47 +156,29 @@ void setup()
     attachInterrupt(0, GAME::updateKeyConnectedFlag, CHANGE);
 }
 
-MelodyUtils mel(CONST::PIN_BUZZER);
-
 void loop()
 {
     GAME::updateKeyConnectedFlag();
 
-    if (GAME::isKeyConnected())
-    {
+    if (GAME::isKeyConnected()) {
+        DEBUG::log("CONNECTED KEY", GAME::getConnectedKeyIdx());
         delay(CONST::TIMELINE_BEFORE_WELCOME_DELAY_MILLIS);
         welcome();
 
-        while (GAME::isKeyConnected())
-        {
-            if (GAME::isSuper())
-            {
+        while (GAME::isKeyConnected()) {
+            if (GAME::isSuper()) {
                 serviceAction();
-            } 
-            else
-            {
+            } else {
                 bool interacted = readInteracted();
-                if (!interacted)
-                {
+                if (!interacted) {
                     interactWithUserAction();
-                }
-                else
-                {
+                } else {
                     showRadiusAction();
                 }
             }
         }
-    }
-    else if (tweetTimerMillis >= CONST::TIMELINE_TWEET_DELAY_MILLIS)
-    {
-mel.Glis(NOTE_C3, NOTE_C4, 2);
-delay(100);
-mel.Glis(NOTE_C3, NOTE_C4, 2);
-delay(100);
-mel.Glis(NOTE_C3, NOTE_C4, 2);
-delay(100);
-mel.Trem(NOTE_C3, 1000, 30);
-        //BUZZER::tweet(CONST::TIMELINE_TWEET_IN_REST_DURATION_MILLIS);
+    } else if (tweetTimerMillis >= CONST::TIMELINE_TWEET_DELAY_MILLIS) {
+        BUZZER::tweet(CONST::TIMELINE_TWEET_IN_REST_DURATION_MILLIS);
         tweetTimerMillis = 0;
     }
 

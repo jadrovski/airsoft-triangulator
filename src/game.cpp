@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "const.h"
+#include "debug.h"
 
 namespace GAME {
     volatile bool isKeyConnectedFlag = false;
@@ -17,16 +18,11 @@ namespace GAME {
 
         int adcRaw = analogRead(CONST::PIN_KEY_ADC);
         
-        if (CONST::DEBUG) {
-            Serial.print("RAW KEY: "); Serial.print(adcRaw); Serial.print("\n");
-        }
+        //DEBUG::log("RAW KEY", adcRaw);
         
         if (adcRaw) {
             for (unsigned int i = 0; i < CONST::GAME_TEAMS_COUNT; i++) {
                 if (abs(adcRaw - CONST::GAME_TEAM_RAW_VALUES[i]) < 10) {
-                    if (CONST::DEBUG) {
-                        Serial.print("IDX KEY: "); Serial.print(i); Serial.print("\n");
-                    }
                     return i;
                 }
             }

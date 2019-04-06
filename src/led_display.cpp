@@ -3,6 +3,7 @@
 #include "util.h"
 #include "game.h"
 #include "led_display.h"
+#include "debug.h"
 
 namespace LED {
 
@@ -197,9 +198,7 @@ namespace LED {
 
     void progress(int percentage)
     {
-        if (CONST::DEBUG) {
-            Serial.print("PROGRESS: "); Serial.print(percentage); Serial.print("\n");
-        }
+        DEBUG::log("PROGRESS", percentage);
     
         LED_STATE s0 = LED_STATE::OFF;
         LED_STATE s1 = LED_STATE::OFF;
