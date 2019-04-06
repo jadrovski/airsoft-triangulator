@@ -1,5 +1,7 @@
 #include <Arduino.h>
 #include <LowPower.h>
+#include "MelodyUtils.h"
+#include "pitches.h"
 #include "mem.h"
 #include "const.h"
 #include "control.h"
@@ -165,6 +167,8 @@ void setup()
     attachInterrupt(0, GAME::updateKeyConnectedFlag, CHANGE);
 }
 
+MelodyUtils mel(CONST::PIN_BUZZER);
+
 void loop()
 {
     GAME::updateKeyConnectedFlag();
@@ -196,7 +200,14 @@ void loop()
     }
     else if (tweetTimerMillis >= CONST::TIMELINE_TWEET_DELAY_MILLIS)
     {
-        BUZZER::tweet(CONST::TIMELINE_TWEET_IN_REST_DURATION_MILLIS);
+mel.Glis(NOTE_C3, NOTE_C4, 2);
+delay(100);
+mel.Glis(NOTE_C3, NOTE_C4, 2);
+delay(100);
+mel.Glis(NOTE_C3, NOTE_C4, 2);
+delay(100);
+mel.Trem(NOTE_C3, 1000, 30);
+        //BUZZER::tweet(CONST::TIMELINE_TWEET_IN_REST_DURATION_MILLIS);
         tweetTimerMillis = 0;
     }
 
