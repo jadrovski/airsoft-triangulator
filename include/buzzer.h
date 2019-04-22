@@ -3,6 +3,8 @@
 
 namespace BUZZER {
     void tweet(unsigned long ms);
+    void notificate();
+    void wtf();
 }
 
 #endif

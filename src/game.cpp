@@ -10,7 +10,7 @@ namespace GAME {
     void updateKeyConnectedFlag()
     {
         isKeyConnectedFlag = digitalRead(CONST::PIN_KEY_WAKE_UP);
-        if (!isKeyConnected) {
+        if (!isKeyConnectedFlag) {
             connectedKeyIdx = -1;
         }
     }

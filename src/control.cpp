@@ -3,61 +3,53 @@
 #include "debug.h"
 
 namespace CONTROL {
-    int btn1State;
-    int btn2State;
-    int lastBtn1State;
-    int lastBtn2State;
+    int btnRightState;
+    int btnLeftState;
+    int lastBtnRightState;
+    int lastBtnLeftState;
 
-    unsigned long lastDebounceTimeBtn1 = 0;
-    unsigned long lastDebounceTimeBtn2 = 0;
+    unsigned long lastDebounceTimeBtnRight = 0;
+    unsigned long lastDebounceTimeBtnLeft  = 0;
     
-    bool isBtn1Pressed()
+    bool isBtnRightPressed()
     {
-        return btn1State == HIGH;
+        return btnRightState == HIGH;
     }
     
-    bool isBtn2Pressed()
+    bool isBtnLeftPressed()
     {
-        return btn2State == HIGH;
+        return btnLeftState == HIGH;
     }
     
     bool areAllPressed()
     {
-        return isBtn1Pressed() && isBtn2Pressed();
+        return isBtnRightPressed() && isBtnLeftPressed();
     }
 
     void updateState()
     {
-        int btn1 = digitalRead(CONST::PIN_BTN_1);
-        int btn2 = digitalRead(CONST::PIN_BTN_2);
+        int btnLeft  = digitalRead(CONST::PIN_BTN_LEFT);
+        int btnRight = digitalRead(CONST::PIN_BTN_RIGHT);
 
-        if (btn1 != lastBtn1State) 
-        {
-            lastDebounceTimeBtn1 = millis();
-        }
-        if (btn2 != lastBtn2State)
-        {
-            lastDebounceTimeBtn2 = millis();
+        if (btnLeft != lastBtnLeftState) {
+            lastDebounceTimeBtnLeft = millis();
         }
 
-        if ((millis() - lastDebounceTimeBtn1) > CONST::TIMELINE_CONTROL_DEBOUNCE_MILLIS)
-        {
-            if (btn1 != btn1State)
-            {
-                btn1State = btn1;
-                DEBUG::log("BUTTON 1", btn1);
-            }
-        }
-        if ((millis() - lastDebounceTimeBtn2) > CONST::TIMELINE_CONTROL_DEBOUNCE_MILLIS)
-        {
-            if (btn2 != btn2State)
-            {
-                btn2State = btn2;
-                DEBUG::log("BUTTON 2", btn2);
-            }
+        if (btnRight != lastBtnRightState) {
+            lastDebounceTimeBtnRight = millis();
         }
 
-        lastBtn1State = btn1;
-        lastBtn2State = btn2;
+        if ((millis() - lastDebounceTimeBtnLeft) > CONST::TIMELINE_CONTROL_DEBOUNCE_MILLIS && btnLeft != btnLeftState) {
+            btnLeftState = btnLeft;
+            DEBUG::log("BUTTON LEFT  ", btnLeft);
+        }
+
+        if ((millis() - lastDebounceTimeBtnRight) > CONST::TIMELINE_CONTROL_DEBOUNCE_MILLIS && btnRight != btnRightState) {
+            btnRightState = btnRight;
+            DEBUG::log("BUTTON RIGHT ", btnRight);
+        }
+
+        lastBtnLeftState  = btnLeft;
+        lastBtnRightState = btnRight;
     }
 }

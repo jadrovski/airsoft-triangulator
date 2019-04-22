@@ -3,8 +3,8 @@
 
 namespace CONTROL {
     void updateState();
-    bool isBtn1Pressed();
-    bool isBtn2Pressed();
+    bool isBtnLeftPressed();
+    bool isBtnRightPressed();
     bool areAllPressed();
 }
 

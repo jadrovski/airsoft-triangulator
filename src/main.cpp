@@ -14,6 +14,7 @@ unsigned int interactTimerMillis = 0;
 
 void welcome()
 {
+    DEBUG::msg("WELCOME MESSAGE");
     for (int i = 0; i < 10; i++) {
         EXIT_FUNCTION_IF_NO_KEY();
 
@@ -26,6 +27,7 @@ void welcome()
 
 void waitCommandBlink()
 {
+    DEBUG::msg("WAIT COMMAND BLINK");
     LED::displayNumberBinary(15);
     delay(10);
     LED::clear();
@@ -52,16 +54,18 @@ void wipeResults()
 
 void serviceAction()
 {
-    welcome();
+    DEBUG::msg("> SERVICE ACTION <");
     MENU::setMenuItem(2, 6);
     while (1) {
         LED::displayInvalidate();
+        CONTROL::updateState();
         EXIT_FUNCTION_IF_NO_KEY();
     }
 }
 
 void interactWithUserAction()
 {
+    DEBUG::msg("> INTERACT WITH USER ACTION <");
     while (1) {
         waitCommandBlink(); 
         CONTROL::updateState();
@@ -96,6 +100,7 @@ void interactWithUserAction()
 
 void showRadiusAction()
 {    
+    DEBUG::msg("> SHOW RADIUS ACTION <");
     int radius = GAME::getRadius();
     
     while (1) {
@@ -132,16 +137,15 @@ void setup()
     pinMode(CONST::PIN_LED_4, OUTPUT);
     pinMode(CONST::PIN_LED_8, OUTPUT);
 
-    pinMode(CONST::PIN_BTN_1, INPUT);
-    pinMode(CONST::PIN_BTN_2, INPUT);
+    pinMode(CONST::PIN_BTN_LEFT, INPUT);
+    pinMode(CONST::PIN_BTN_RIGHT, INPUT);
 
     CONTROL::updateState();
     
-    delay(CONST::TIMELINE_CONTROL_DEBOUNCE_MILLIS);
-    delay(10);
+    delay(CONST::TIMELINE_CONTROL_DEBOUNCE_MILLIS + 50);
     
     CONTROL::updateState();
-    if (CONTROL::isBtn1Pressed() && !CONTROL::isBtn2Pressed()) {
+    if (CONTROL::isBtnRightPressed() && !CONTROL::isBtnLeftPressed()) {
         wipeResults();
         BUZZER::tweet(1000);
     }
@@ -151,7 +155,7 @@ void setup()
     
     printResultTable();
 
-    delay(10);
+    BUZZER::notificate();
 
     attachInterrupt(0, GAME::updateKeyConnectedFlag, CHANGE);
 }
@@ -178,14 +182,17 @@ void loop()
             }
         }
     } else if (tweetTimerMillis >= CONST::TIMELINE_TWEET_DELAY_MILLIS) {
-        BUZZER::tweet(CONST::TIMELINE_TWEET_IN_REST_DURATION_MILLIS);
+        BUZZER::notificate();
         tweetTimerMillis = 0;
     }
 
     // going to sleep
+    DEBUG::msg("GOING TO SLEEP...");
     LED::clear();
-    LowPower.powerDown(SLEEP_1S, ADC_OFF, BOD_OFF);
+    delay(10);
+    LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
 
+    DEBUG::msg("AWAKEN!");
     // awaken
-    tweetTimerMillis += 1000;
+    tweetTimerMillis += 8000;
 }

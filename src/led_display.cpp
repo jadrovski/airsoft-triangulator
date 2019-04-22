@@ -27,6 +27,7 @@ namespace LED {
 
     void clear()
     {
+        DEBUG::msg("DISPLAY CLEAR");
         digitalWrite(CONST::PIN_LED_1, LOW);
         digitalWrite(CONST::PIN_LED_2, LOW);
         digitalWrite(CONST::PIN_LED_4, LOW);
@@ -59,6 +60,8 @@ namespace LED {
 
     void displayNumberBlinking(int number)
     {
+        DEBUG::log("NUMBER", number);
+
         int num3 = (number / 1000) % 10;
         int num2 = (number / 100) % 10;
         int num1 = (number / 10) % 10;
