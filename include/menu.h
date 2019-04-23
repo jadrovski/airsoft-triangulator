@@ -3,6 +3,7 @@
 
 namespace MENU {
     void setMenuItem(int idx1, int idx2);
+    void StartMenu();
 }
 
 #endif

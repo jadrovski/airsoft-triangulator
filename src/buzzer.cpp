@@ -1,30 +1,38 @@
 #include <Arduino.h>
 #include "const.h"
-#include "MelodyUtils.h"
-#include "pitches.h"
+//#include "MelodyUtils.h"
+//#include "pitches.h"
 #include "debug.h"
 
 namespace BUZZER {
+
+    void beep()
+    {
+        tone(CONST::PIN_BUZZER, 3000);
+        delay(20);
+        noTone(CONST::PIN_BUZZER);
+    }
+
     void tweet(unsigned long ms)
     {
-        DEBUG::log("TWEET", ms);
+        DEBUG::log(F("TWEET"), ms);
         tone(CONST::PIN_BUZZER, random(300, 1500));
         delay(ms);
         noTone(CONST::PIN_BUZZER);
     }
 
-    MelodyUtils mel(CONST::PIN_BUZZER);
+    // MelodyUtils mel(CONST::PIN_BUZZER);
     
-    void wtf()
-    {
-        mel.Glis(NOTE_C3, NOTE_C4, 2);
-        delay(100);
-        mel.Glis(NOTE_C3, NOTE_C4, 2);
-        delay(100);
-        mel.Glis(NOTE_C3, NOTE_C4, 2);
-        delay(100);
-        mel.Trem(NOTE_C3, 1000, 30);
-    }
+    // void wtf()
+    // {
+    //     mel.Glis(NOTE_C3, NOTE_C4, 2);
+    //     delay(100);
+    //     mel.Glis(NOTE_C3, NOTE_C4, 2);
+    //     delay(100);
+    //     mel.Glis(NOTE_C3, NOTE_C4, 2);
+    //     delay(100);
+    //     mel.Trem(NOTE_C3, 1000, 30);
+    // }
 
     void notificate()
     {
@@ -32,7 +40,7 @@ namespace BUZZER {
             tone(CONST::PIN_BUZZER, i);
             delay(50);
             noTone(CONST::PIN_BUZZER);
-            i+=400;
+            i += 400;
         }
     }
 }

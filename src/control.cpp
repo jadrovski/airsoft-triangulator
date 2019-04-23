@@ -41,12 +41,12 @@ namespace CONTROL {
 
         if ((millis() - lastDebounceTimeBtnLeft) > CONST::TIMELINE_CONTROL_DEBOUNCE_MILLIS && btnLeft != btnLeftState) {
             btnLeftState = btnLeft;
-            DEBUG::log("BUTTON LEFT  ", btnLeft);
+            DEBUG::log(F("BTN L"), btnLeft);
         }
 
         if ((millis() - lastDebounceTimeBtnRight) > CONST::TIMELINE_CONTROL_DEBOUNCE_MILLIS && btnRight != btnRightState) {
             btnRightState = btnRight;
-            DEBUG::log("BUTTON RIGHT ", btnRight);
+            DEBUG::log(F("BTN R"), btnRight);
         }
 
         lastBtnLeftState  = btnLeft;

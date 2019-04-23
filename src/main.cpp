@@ -14,7 +14,7 @@ unsigned int interactTimerMillis = 0;
 
 void welcome()
 {
-    DEBUG::msg("WELCOME MESSAGE");
+    DEBUG::msg(F("WELCOME"));
     for (int i = 0; i < 10; i++) {
         EXIT_FUNCTION_IF_NO_KEY();
 
@@ -27,7 +27,6 @@ void welcome()
 
 void waitCommandBlink()
 {
-    DEBUG::msg("WAIT COMMAND BLINK");
     LED::displayNumberBinary(15);
     delay(10);
     LED::clear();
@@ -49,23 +48,23 @@ void wipeResults()
     for (unsigned int i = 0; i < CONST::GAME_TEAMS_COUNT; i++) {
         MEM::writeULong(i * 4, 0);
     }
-    DEBUG::msg("### RESULTS WIPED ###");
+    DEBUG::msg(F("RESULTS WIPED"));
 }
 
 void serviceAction()
 {
-    DEBUG::msg("> SERVICE ACTION <");
-    MENU::setMenuItem(2, 6);
-    while (1) {
-        LED::displayInvalidate();
-        CONTROL::updateState();
-        EXIT_FUNCTION_IF_NO_KEY();
-    }
+    DEBUG::msg(F("> SERVICE <"));
+    MENU::StartMenu();
+    // while (1) {
+    //     LED::displayInvalidate();
+    //     CONTROL::updateState();
+    //     EXIT_FUNCTION_IF_NO_KEY();
+    // }
 }
 
 void interactWithUserAction()
 {
-    DEBUG::msg("> INTERACT WITH USER ACTION <");
+    DEBUG::msg(F("> INTERACT <"));
     while (1) {
         waitCommandBlink(); 
         CONTROL::updateState();
@@ -100,7 +99,7 @@ void interactWithUserAction()
 
 void showRadiusAction()
 {    
-    DEBUG::msg("> SHOW RADIUS ACTION <");
+    DEBUG::msg(F("> SHOW RADIUS <"));
     int radius = GAME::getRadius();
     
     while (1) {
@@ -113,12 +112,12 @@ void showRadiusAction()
 void printResultTable()
 {
     for (unsigned int i = 0; i < CONST::GAME_TEAMS_COUNT; i++) {
-        Serial.print("TEAM #");
+        Serial.print(F("TEAM #"));
         Serial.print(i);
-        Serial.print(" CHECK-IN: ");
+        Serial.print(F(" CHECK-IN: "));
         long checkIn = MEM::readULong(i * 4);
         if (checkIn == 0) {
-            Serial.print("NONE");
+            Serial.print(F("NONE"));
         } else {
             Serial.print(checkIn);
         }
@@ -150,8 +149,8 @@ void setup()
         BUZZER::tweet(1000);
     }
     
-    DEBUG::log("VERSION", CONST::VERSION);
-    DEBUG::log("DEVICE",  CONST::GAME_DEVICE_ID);
+    DEBUG::log(F("VER"), CONST::VERSION);
+    DEBUG::log(F("DEVICE"),  CONST::GAME_DEVICE_ID);
     
     printResultTable();
 
@@ -187,12 +186,12 @@ void loop()
     }
 
     // going to sleep
-    DEBUG::msg("GOING TO SLEEP...");
+    DEBUG::msg(F("SLEEP"));
     LED::clear();
     delay(10);
     LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
 
-    DEBUG::msg("AWAKEN!");
+    DEBUG::msg(F("AWAKEN"));
     // awaken
     tweetTimerMillis += 8000;
 }

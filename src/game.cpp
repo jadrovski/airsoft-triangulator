@@ -24,13 +24,13 @@ namespace GAME {
         if (connectedKeyIdx == -1) {
             int adcRaw = analogRead(CONST::PIN_KEY_ADC);
 
-            DEBUG::log("RAW VALUE KEY", adcRaw);
+            DEBUG::log(F("RAW KEY"), adcRaw);
             
             if (adcRaw) {
                 for (unsigned int i = 0; i < CONST::GAME_TEAMS_COUNT; i++) {
                     if (abs(adcRaw - CONST::GAME_TEAM_RAW_VALUES[i]) < 10) {
                         connectedKeyIdx = i;
-                        DEBUG::log("CONNECTED KEY", connectedKeyIdx);
+                        DEBUG::log(F("CONNECTED KEY"), connectedKeyIdx);
                         break;
                     }
                 }

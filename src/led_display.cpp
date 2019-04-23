@@ -27,7 +27,7 @@ namespace LED {
 
     void clear()
     {
-        DEBUG::msg("DISPLAY CLEAR");
+        DEBUG::msg(F("LED CLEAR"));
         digitalWrite(CONST::PIN_LED_1, LOW);
         digitalWrite(CONST::PIN_LED_2, LOW);
         digitalWrite(CONST::PIN_LED_4, LOW);
@@ -42,7 +42,27 @@ namespace LED {
         l3 = s3;
     }
 
-    void setRaw(bool l3, bool l2, bool l1, bool l0)
+    void setS0(LED_STATE s)
+    {
+        l0 = s;
+    }
+
+    void setS1(LED_STATE s)
+    {
+        l1 = s;
+    }
+
+    void setS2(LED_STATE s)
+    {
+        l2 = s;
+    }
+
+    void setS3(LED_STATE s)
+    {
+        l3 = s;
+    }
+
+    void setRaw(int l3, int l2, int l1, int l0)
     {
         digitalWrite(CONST::PIN_LED_1, l0);
         digitalWrite(CONST::PIN_LED_2, l1);
@@ -60,7 +80,7 @@ namespace LED {
 
     void displayNumberBlinking(int number)
     {
-        DEBUG::log("NUMBER", number);
+        DEBUG::log(F("NUMBER"), number);
 
         int num3 = (number / 1000) % 10;
         int num2 = (number / 100) % 10;
@@ -89,119 +109,73 @@ namespace LED {
 
     void displayInvalidate()
     {
-        if (l0 != l0_prev)
-        {
+        if (l0 != l0_prev || l1 != l1_prev || l2 != l2_prev || l3 != l3_prev) {
             l0_prev = l0;
-        
-            switch (l0) {
-                case BLINK_ON:
-                case ON:
-                    l0_val = HIGH;
-                    break;
-                case BLINK_OFF:
-                case OFF:
-                    l0_val = LOW;
-                    break;
-            }
-
-            setRaw(l3_val, l2_val, l1_val, l0_val);
-        }
-
-        if (l1 != l1_prev)
-        {
             l1_prev = l1;
-        
-            switch (l1) {
-                case BLINK_ON:
-                case ON:
-                    l1_val = HIGH;
-                    break;
-                case BLINK_OFF:
-                case OFF:
-                    l1_val = LOW;
-                    break;
-            }
-
-            setRaw(l3_val, l2_val, l1_val, l0_val);
-        }
-
-        if (l2 != l2_prev)
-        {
             l2_prev = l2;
-        
-            switch (l2) {
-                case BLINK_ON:
-                case ON:
-                    l2_val = HIGH;
-                    break;
-                case BLINK_OFF:
-                case OFF:
-                    l2_val = LOW;
-                    break;
-            }
-
-            setRaw(l3_val, l2_val, l1_val, l0_val);
-        }
-
-        if (l3 != l3_prev)
-        {
             l3_prev = l3;
-        
-            switch (l3) {
-                case BLINK_ON:
-                case ON:
-                    l3_val = HIGH;
-                    break;
-                case BLINK_OFF:
-                case OFF:
-                    l3_val = LOW;
-                    break;
+
+            if (l0 == BLINK_ON || l0 == ON) {
+                l0_val = HIGH;
+            } else {
+                l0_val = LOW;
             }
 
-            setRaw(l3_val, l2_val, l1_val, l0_val);
+            if (l1 == BLINK_ON || l1 == ON) {
+                l1_val = HIGH;
+            } else {
+                l1_val = LOW;
+            }
+
+            if (l2 == BLINK_ON || l2 == ON) {
+                l2_val = HIGH;
+            } else {
+                l2_val = LOW;
+            }
+
+            if (l3 == BLINK_ON || l3 == ON) {
+                l3_val = HIGH;
+            } else {
+                l3_val = LOW;
+            }
         }
-        
+
         // switching blinks
         if (
-            l0 == LED_STATE::BLINK_OFF || l0 == LED_STATE::BLINK_ON
+            l0 == BLINK_OFF || l0 == BLINK_ON
                 || 
-            l1 == LED_STATE::BLINK_OFF || l1 == LED_STATE::BLINK_ON
+            l1 == BLINK_OFF || l1 == BLINK_ON
                 ||
-            l2 == LED_STATE::BLINK_OFF || l2 == LED_STATE::BLINK_ON
+            l2 == BLINK_OFF || l2 == BLINK_ON
                 ||
-            l3 == LED_STATE::BLINK_OFF || l3 == LED_STATE::BLINK_ON
+            l3 == BLINK_OFF || l3 == BLINK_ON
         ) {
             unsigned long currentMillis = millis();
-            if ((currentMillis - ledLastBlinkMillis) >= LED_BLINK_DELAY_MILLIS)
-            {
+            if ((currentMillis - ledLastBlinkMillis) >= LED_BLINK_DELAY_MILLIS) {
                 ledLastBlinkMillis = currentMillis;
                 //invert blinks!
 
-                if (l0 == LED_STATE::BLINK_ON || l0 == LED_STATE::BLINK_OFF)
-                {
+                if (l0 == BLINK_ON || l0 == BLINK_OFF) {
                     l0_val = !l0_val;
                 }
-                if (l1 == LED_STATE::BLINK_ON || l1 == LED_STATE::BLINK_OFF)
-                {
+                if (l1 == BLINK_ON || l1 == BLINK_OFF) {
                     l1_val = !l1_val;
                 }
-                if (l2 == LED_STATE::BLINK_ON || l2 == LED_STATE::BLINK_OFF)
-                {
+                if (l2 == BLINK_ON || l2 == BLINK_OFF) {
                     l2_val = !l2_val;
                 }
-                if (l3 == LED_STATE::BLINK_ON || l3 == LED_STATE::BLINK_OFF)
-                {
+                if (l3 == BLINK_ON || l3 == BLINK_OFF) {
                     l3_val = !l3_val;
                 }
-
-                setRaw(l3_val, l2_val, l1_val, l0_val);
             }
         }
+
+        setRaw(l3_val, l2_val, l1_val, l0_val);
     }
 
     void progress(int percentage)
     {
-        DEBUG::log("PROGRESS", percentage);
+        DEBUG::log(F("PROGRESS"), percentage);
     
         LED_STATE s0 = LED_STATE::OFF;
         LED_STATE s1 = LED_STATE::OFF;

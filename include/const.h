@@ -28,7 +28,7 @@ namespace CONST {
     const unsigned int PIN_BUZZER      = 10;
     
     const unsigned int TIMELINE_BEFORE_WELCOME_DELAY_MILLIS         = 500;
-    const unsigned int TIMELINE_TWEET_DELAY_MILLIS                  = 60 * 1000; // Can't be lower than SLEEP_8S
+    const unsigned int TIMELINE_TWEET_DELAY_MILLIS                  = 60000; // Can't be lower than SLEEP_8S
     const unsigned int TIMELINE_INTERACT_MILLIS                     = 60000;
     const unsigned int TIMELINE_CONTROL_DEBOUNCE_MILLIS             = 100;
     const unsigned int TIMELINE_DELAY_BETWEEN_DISPLAY_NUMBER_MILLIS = 2000;

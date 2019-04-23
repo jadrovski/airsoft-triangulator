@@ -2,7 +2,7 @@
 #include "const.h"
 
 namespace DEBUG {
-    void log(const char param[], int value)
+    void log(const __FlashStringHelper* param, int value)
     {
         if (CONST::DEBUG) {
             Serial.print(param);
@@ -11,7 +11,7 @@ namespace DEBUG {
         }
     }
 
-    void msg(const char msg[])
+    void msg(const __FlashStringHelper *msg)
     {
         if (CONST::DEBUG) {
             Serial.println(msg);
