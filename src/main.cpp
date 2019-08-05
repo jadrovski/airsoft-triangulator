@@ -136,6 +136,8 @@ void setup()
     pinMode(CONST::PIN_LED_4, OUTPUT);
     pinMode(CONST::PIN_LED_8, OUTPUT);
 
+    pinMode(CONST::PIN_BUZZER, OUTPUT);
+
     pinMode(CONST::PIN_BTN_LEFT, INPUT);
     pinMode(CONST::PIN_BTN_RIGHT, INPUT);
 
