@@ -87,7 +87,9 @@ void interactWithUserAction()
 
             EXIT_FUNCTION_IF_NO_KEY();
         }
+
         LED::clear();
+        
         if (interactTimerMillis > CONST::TIMELINE_INTERACT_MILLIS) {
             writeInteracted();
             return;
@@ -152,7 +154,7 @@ void setup()
     }
     
     DEBUG::log(F("VER"), CONST::VERSION);
-    DEBUG::log(F("DEVICE"),  CONST::GAME_DEVICE_ID);
+    DEBUG::log(F("DEVICE"), CONST::GAME_DEVICE_ID);
     
     printResultTable();
 

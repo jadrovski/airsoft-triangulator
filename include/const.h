@@ -26,6 +26,9 @@ namespace CONST {
     const unsigned int PIN_KEY_ADC     = 0;
     const unsigned int PIN_KEY_WAKE_UP = 2;
     const unsigned int PIN_BUZZER      = 10;
+
+    const unsigned int LED_BLINK_FAST_DELAY_MILLIS = 200;
+    const unsigned int LED_BLINK_SLOW_DELAY_MILLIS = 400;
     
     const unsigned int TIMELINE_BEFORE_WELCOME_DELAY_MILLIS         = 500;
     const unsigned int TIMELINE_TWEET_DELAY_MILLIS                  = 60000; // Can't be lower than SLEEP_8S

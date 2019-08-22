@@ -7,7 +7,9 @@
 
 namespace LED {
 
-    const unsigned int LED_BLINK_DELAY_MILLIS = 200;
+    const unsigned int LED_BLINK_STATE_DELAY_MILLIS   = CONST::LED_BLINK_FAST_DELAY_MILLIS;
+    const unsigned int LED_BLINK_OBVIOUS_DELAY_MILLIS = CONST::LED_BLINK_SLOW_DELAY_MILLIS;
+
     unsigned long ledLastBlinkMillis = 0;
 
     LED_STATE l3 = LED_STATE::OFF;
@@ -25,13 +27,24 @@ namespace LED {
     int l1_val = LOW;
     int l0_val = LOW;
 
+    //
+    //  8  4  2  1   <-- binary
+    // (x)(x)(x)(x)  <-- leds 
+    //  .  .  .  .
+    //  l3 l2 l1 l0  <-- args
+    //
+    void setRaw(int l3, int l2, int l1, int l0)
+    {
+        digitalWrite(CONST::PIN_LED_1, l0);
+        digitalWrite(CONST::PIN_LED_2, l1);
+        digitalWrite(CONST::PIN_LED_4, l2);
+        digitalWrite(CONST::PIN_LED_8, l3);
+    }
+
     void clear()
     {
         DEBUG::msg(F("LED CLEAR"));
-        digitalWrite(CONST::PIN_LED_1, LOW);
-        digitalWrite(CONST::PIN_LED_2, LOW);
-        digitalWrite(CONST::PIN_LED_4, LOW);
-        digitalWrite(CONST::PIN_LED_8, LOW);
+        setRaw(LOW, LOW, LOW, LOW);
     }
 
     void setState(LED_STATE s0, LED_STATE s1, LED_STATE s2, LED_STATE s3)
@@ -62,20 +75,14 @@ namespace LED {
         l3 = s;
     }
 
-    void setRaw(int l3, int l2, int l1, int l0)
-    {
-        digitalWrite(CONST::PIN_LED_1, l0);
-        digitalWrite(CONST::PIN_LED_2, l1);
-        digitalWrite(CONST::PIN_LED_4, l2);
-        digitalWrite(CONST::PIN_LED_8, l3);
-    }
-
     void displayNumberBinary(int number)
     {
-        digitalWrite(CONST::PIN_LED_1, IS_BIT_SET(number, 0));
-        digitalWrite(CONST::PIN_LED_2, IS_BIT_SET(number, 1));
-        digitalWrite(CONST::PIN_LED_4, IS_BIT_SET(number, 2));
-        digitalWrite(CONST::PIN_LED_8, IS_BIT_SET(number, 3));
+        setRaw(
+            IS_BIT_SET(number, 3),
+            IS_BIT_SET(number, 2),
+            IS_BIT_SET(number, 1),
+            IS_BIT_SET(number, 0)
+        );
     }
 
     void displayNumberBlinking(int number)
@@ -83,27 +90,30 @@ namespace LED {
         DEBUG::log(F("NUMBER"), number);
 
         int num3 = (number / 1000) % 10;
-        int num2 = (number / 100) % 10;
-        int num1 = (number / 10) % 10;
-        int num0 = number % 10;
+        int num2 = (number / 100 ) % 10;
+        int num1 = (number / 10  ) % 10;
+        int num0 = (number / 1   ) % 10;
 
         while (num0 > 0 || num1 > 0 || num2 > 0 || num3 > 0)
         {
             EXIT_FUNCTION_IF_NO_KEY();
-            digitalWrite(CONST::PIN_LED_1, num0 > 0 ? HIGH : LOW);
-            digitalWrite(CONST::PIN_LED_2, num1 > 0 ? HIGH : LOW);
-            digitalWrite(CONST::PIN_LED_4, num2 > 0 ? HIGH : LOW);
-            digitalWrite(CONST::PIN_LED_8, num3 > 0 ? HIGH : LOW);
 
-            delay(300);
+            setRaw(
+                num3 > 0 ? HIGH : LOW,
+                num2 > 0 ? HIGH : LOW,
+                num1 > 0 ? HIGH : LOW,
+                num0 > 0 ? HIGH : LOW
+            );
+
+            delay(LED_BLINK_OBVIOUS_DELAY_MILLIS);
+            
             clear();
-            delay(300);
 
-            num0--;
-            num1--;
-            num2--;
-            num3--;
+            delay(LED_BLINK_OBVIOUS_DELAY_MILLIS);
+
+            num0--; num1--; num2--; num3--;
         }
+
         clear();
     }
 
@@ -151,7 +161,7 @@ namespace LED {
             l3 == BLINK_OFF || l3 == BLINK_ON
         ) {
             unsigned long currentMillis = millis();
-            if ((currentMillis - ledLastBlinkMillis) >= LED_BLINK_DELAY_MILLIS) {
+            if ((currentMillis - ledLastBlinkMillis) >= LED_BLINK_STATE_DELAY_MILLIS) {
                 ledLastBlinkMillis = currentMillis;
                 //invert blinks!
 
@@ -183,24 +193,24 @@ namespace LED {
         LED_STATE s3 = LED_STATE::OFF;
 
         if (percentage >= 0 && percentage < 25) {
-            s0 = LED_STATE::BLINK_ON;
-        } else if (percentage >= 25 && percentage < 50) {
-            s0 = LED_STATE::ON;
-            s1 = LED_STATE::BLINK_ON;
-        } else if (percentage >= 50 && percentage < 75) {
-            s0 = LED_STATE::ON;
-            s1 = LED_STATE::ON;
-            s2 = LED_STATE::BLINK_ON;
-        } else if (percentage >= 75 && percentage < 100) {
-            s0 = LED_STATE::ON;
-            s1 = LED_STATE::ON;
-            s2 = LED_STATE::ON;
             s3 = LED_STATE::BLINK_ON;
-        } else if (percentage >= 100) {
-            s0 = LED_STATE::ON;
-            s1 = LED_STATE::ON;
-            s2 = LED_STATE::ON;
+        } else if (percentage >= 25 && percentage < 50) {
             s3 = LED_STATE::ON;
+            s2 = LED_STATE::BLINK_ON;
+        } else if (percentage >= 50 && percentage < 75) {
+            s3 = LED_STATE::ON;
+            s2 = LED_STATE::ON;
+            s1 = LED_STATE::BLINK_ON;
+        } else if (percentage >= 75 && percentage < 100) {
+            s3 = LED_STATE::ON;
+            s2 = LED_STATE::ON;
+            s1 = LED_STATE::ON;
+            s0 = LED_STATE::BLINK_ON;
+        } else if (percentage >= 100) {
+            s3 = LED_STATE::ON;
+            s2 = LED_STATE::ON;
+            s1 = LED_STATE::ON;
+            s0 = LED_STATE::ON;
         }
 
         setState(s0, s1, s2, s3);
