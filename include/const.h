@@ -4,8 +4,8 @@
 namespace CONST {
     const bool         DEBUG                  = true;
     const unsigned int VERSION                = 1;
-    const unsigned int GAME_DEVICE_ID         = 1; // 1, 2, 3
-    const unsigned int GAME_RADIUSES[]        = {750, 300, 495};
+    const unsigned int GAME_DEVICE_ID         = 3; // 1, 2, 3
+    const unsigned int GAME_RADIUSES[]        = {305, 511, 362};
     
     const unsigned int GAME_TEAMS_COUNT       = 5;
     const          int GAME_TEAM_RAW_VALUES[] = {
