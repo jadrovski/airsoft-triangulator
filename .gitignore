@@ -2,3 +2,7 @@
 .pioenvs
 .piolibdeps
 .vscode
+.idea
+cmake-build-*
+CMakeLists.txt
+CMakeListsPrivate.txt

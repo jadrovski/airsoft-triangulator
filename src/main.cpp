@@ -2,59 +2,83 @@
 #include <LowPower.h>
 #include "mem.h"
 #include "const.h"
-#include "control.h"
-#include "led_display.h"
-#include "buzzer.h"
-#include "menu.h"
-#include "game.h"
-#include "debug.h"
+#include "Control.h"
+#include <LedDisplay.h>
+#include "Buzzer.h"
+#include "Game.h"
+#include "Debug.h"
+//#include "menu.h"
 
 unsigned int tweetTimerMillis    = 0;
 unsigned int interactTimerMillis = 0;
 
+Debug debug(CONST::DEBUG);
+Buzzer buzzer(CONST::PIN_BUZZER, debug);
+Control control(CONST::PIN_BTN_LEFT, CONST::PIN_BTN_RIGHT, CONST::TIMELINE_CONTROL_DEBOUNCE_MILLIS, debug);
+Game game(
+    CONST::PIN_KEY_WAKE_UP,
+    CONST::PIN_KEY_ADC,
+    CONST::GAME_TEAMS_COUNT,
+    CONST::GAME_TEAM_RAW_VALUES,
+    CONST::GAME_SUPER_KEY_IDX,
+    CONST::GAME_DEVICE_ID,
+    CONST::GAME_RADIUSES,
+    debug
+);
+LedDisplay ledDisplay(
+    CONST::PIN_LED_1,
+    CONST::PIN_LED_2,
+    CONST::PIN_LED_4,
+    CONST::PIN_LED_8,
+    CONST::LED_BLINK_SLOW_DELAY_MILLIS,
+    CONST::LED_BLINK_FAST_DELAY_MILLIS,
+    game,
+    debug
+);
+
 void welcome()
 {
-    DEBUG::msg(F("WELCOME"));
+    debug.msg(F("WELCOME"));
     for (int i = 0; i < 10; i++) {
-        EXIT_FUNCTION_IF_NO_KEY();
+        if (!game.isKeyConnected()) return;
 
-        LED::displayNumberBinary(15);
-        BUZZER::tweet(20);
-        LED::clear();
+        ledDisplay.displayNumberBinary(15);
+        buzzer.tweet(20);
+        ledDisplay.clear();
         delay(20);
     }
 }
 
 void waitCommandBlink()
 {
-    LED::displayNumberBinary(15);
+    ledDisplay.displayNumberBinary(15);
     delay(10);
-    LED::clear();
+    ledDisplay.clear();
     delay(1000);
 }
 
 bool readInteracted()
 {
-    return MEM::readULong(GAME::getConnectedKeyIdx() * 4) != 0;
+    return MEM::readULong(game.getConnectedKeyIdx() * 4) != 0;
 }
 
 void writeInteracted()
 {
-    MEM::writeULong(GAME::getConnectedKeyIdx() * 4, millis());
+    MEM::writeULong(game.getConnectedKeyIdx() * 4, millis());
 }
 
 void wipeResults()
 {
-    for (unsigned int i = 0; i < CONST::GAME_TEAMS_COUNT; i++) {
+    for (auto i = 0; i < CONST::GAME_TEAMS_COUNT; i++) {
         MEM::writeULong(i * 4, 0);
     }
-    DEBUG::msg(F("RESULTS WIPED"));
+    debug.msg(F("RESULTS WIPED"));
 }
 
 void serviceAction()
 {
-    DEBUG::msg(F("> SERVICE <"));
-    MENU::StartMenu();
+    debug.msg(F("> SERVICE <"));
+    //MENU::StartMenu();
     // while (1) {
     //     LED::displayInvalidate();
     //     CONTROL::updateState();
@@ -64,50 +88,50 @@ void serviceAction()
 
 void interactWithUserAction()
 {
-    DEBUG::msg(F("> INTERACT <"));
-    while (1) {
-        waitCommandBlink(); 
-        CONTROL::updateState();
+    debug.msg(F("> INTERACT <"));
+    while (true) {
+        waitCommandBlink();
+        control.updateState();
 
         interactTimerMillis = 0;
 
         while (
-            CONTROL::areAllPressed() &&
+            control.areAllPressed() &&
             interactTimerMillis <= CONST::TIMELINE_INTERACT_MILLIS
         ) {
             unsigned long lastMillis = millis();
             delay(10);
 
-            LED::progress((int) ((interactTimerMillis / (float) CONST::TIMELINE_INTERACT_MILLIS) * 100));
-            LED::displayInvalidate();
+            ledDisplay.progress((int) ((interactTimerMillis / (float) CONST::TIMELINE_INTERACT_MILLIS) * 100));
+            ledDisplay.displayInvalidate();
 
             interactTimerMillis += (millis() - lastMillis);
-            
-            CONTROL::updateState();
 
-            EXIT_FUNCTION_IF_NO_KEY();
+            control.updateState();
+
+            if (!game.isKeyConnected()) return;
         }
 
-        LED::clear();
-        
+        ledDisplay.clear();
+
         if (interactTimerMillis > CONST::TIMELINE_INTERACT_MILLIS) {
             writeInteracted();
             return;
         }
-        
-        EXIT_FUNCTION_IF_NO_KEY();
+
+        if (!game.isKeyConnected()) return;
     }
 }
 
 void showRadiusAction()
-{    
-    DEBUG::msg(F("> SHOW RADIUS <"));
-    int radius = GAME::getRadius();
-    
-    while (1) {
+{
+    debug.msg(F("> SHOW RADIUS <"));
+    unsigned int radius = game.getRadius();
+
+    while (true) {
         delay(CONST::TIMELINE_DELAY_BETWEEN_DISPLAY_NUMBER_MILLIS);
-        LED::displayNumberBlinking(radius);
-        EXIT_FUNCTION_IF_NO_KEY();
+        ledDisplay.displayNumberBlinking(radius);
+        if (!game.isKeyConnected()) return;
     }
 }
 
@@ -117,7 +141,7 @@ void printResultTable()
         Serial.print(F("TEAM #"));
         Serial.print(i);
         Serial.print(F(" CHECK-IN: "));
-        long checkIn = MEM::readULong(i * 4);
+        unsigned long checkIn = MEM::readULong(i * 4);
         if (checkIn == 0) {
             Serial.print(F("NONE"));
         } else {
@@ -127,10 +151,15 @@ void printResultTable()
     }
 }
 
+void updateKey()
+{
+    game.updateKeyConnectedFlag();
+}
+
 void setup()
 {
     Serial.begin(115200);
-    
+
     pinMode(CONST::PIN_KEY_WAKE_UP, INPUT);
 
     pinMode(CONST::PIN_LED_1, OUTPUT);
@@ -143,37 +172,37 @@ void setup()
     pinMode(CONST::PIN_BTN_LEFT, INPUT);
     pinMode(CONST::PIN_BTN_RIGHT, INPUT);
 
-    CONTROL::updateState();
-    
+    control.updateState();
+
     delay(CONST::TIMELINE_CONTROL_DEBOUNCE_MILLIS + 50);
-    
-    CONTROL::updateState();
-    if (CONTROL::isBtnRightPressed() && !CONTROL::isBtnLeftPressed()) {
+
+    control.updateState();
+    if (control.isBtnRightPressed() && !control.isBtnLeftPressed()) {
         wipeResults();
-        BUZZER::tweet(1000);
+        buzzer.tweet(1000);
     }
-    
-    DEBUG::log(F("VER"), CONST::VERSION);
-    DEBUG::log(F("DEVICE"), CONST::GAME_DEVICE_ID);
-    
+
+    debug.log(F("VER"), CONST::VERSION);
+    debug.log(F("DEVICE"), CONST::GAME_DEVICE_ID);
+
     printResultTable();
 
-    BUZZER::notificate();
+    buzzer.notificate();
 
-    attachInterrupt(0, GAME::updateKeyConnectedFlag, CHANGE);
+    attachInterrupt(0, updateKey, CHANGE);
 }
 
 void loop()
 {
-    GAME::updateKeyConnectedFlag();
+    game.updateKeyConnectedFlag();
 
-    if (GAME::isKeyConnected()) {
+    if (game.isKeyConnected()) {
 
         delay(CONST::TIMELINE_BEFORE_WELCOME_DELAY_MILLIS);
         welcome();
 
-        while (GAME::isKeyConnected()) {
-            if (GAME::isSuper()) {
+        while (game.isKeyConnected()) {
+            if (game.isSuper()) {
                 serviceAction();
             } else {
                 bool interacted = readInteracted();
@@ -185,17 +214,17 @@ void loop()
             }
         }
     } else if (tweetTimerMillis >= CONST::TIMELINE_TWEET_DELAY_MILLIS) {
-        BUZZER::notificate();
+        buzzer.notificate();
         tweetTimerMillis = 0;
     }
 
     // going to sleep
-    DEBUG::msg(F("SLEEP"));
-    LED::clear();
+    debug.msg(F("SLEEP"));
+    ledDisplay.clear();
     delay(10);
     LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
 
-    DEBUG::msg(F("AWAKEN"));
+    debug.msg(F("AWAKEN"));
     // awaken
     tweetTimerMillis += 8000;
 }
