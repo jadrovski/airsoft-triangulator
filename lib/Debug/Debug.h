@@ -1,5 +1,5 @@
-#ifndef DEBUG_H_
-#define DEBUG_H_
+#ifndef NEPOPAL_DEBUG_H_
+#define NEPOPAL_DEBUG_H_
 
 #include <Arduino.h>
 

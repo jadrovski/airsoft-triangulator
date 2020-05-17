@@ -1,5 +1,5 @@
-#ifndef MEM_H_
-#define MEM_H_
+#ifndef NEPOPAL_MEM_H_
+#define NEPOPAL_MEM_H_
 
 namespace MEM {
     void writeULong(int address, unsigned long value);

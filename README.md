@@ -16,7 +16,7 @@ The organisators of event should place devices somewhere in region beforehand in
 The main objective of teams is to find triangulators, interect with them to receive an integer value from each device, determine triangulators position on the map and use these integer values as radiuses.
 Radiuses should be intersected in one point (the precision of this point depends on how accurately triangulators position previously determinated).
 
-The point found in the territory means the end of game and the team that found this point first - wins.
+The point found in the territory means the end of triangulatorGame and the team that found this point first - wins.
 
 ### About the hardware:
 

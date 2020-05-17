@@ -1,9 +1,9 @@
-#ifndef LED_H_
-#define LED_H_
+#ifndef NEPOPAL_LED_H_
+#define NEPOPAL_LED_H_
 
 #include <Arduino.h>
-#include "Game.h"
-#include "Debug.h"
+#include <Debug.h>
+#include <AbstractHardware.h>
 
 typedef enum
 {
@@ -13,8 +13,11 @@ typedef enum
     ON
 } LED_STATE;
 
-class LedDisplay {
+class LedDisplay : public AbstractHardware {
 public:
+    static const unsigned int LED_BLINK_FAST_DELAY_MILLIS = 200;
+    static const unsigned int LED_BLINK_SLOW_DELAY_MILLIS = 400;
+
     LedDisplay(
         uint8_t pinLed1,
         uint8_t pinLed2,
@@ -22,9 +25,10 @@ public:
         uint8_t pinLed8,
         unsigned int ledBlinkStateDelayMillis,
         unsigned int ledBlinkObviousDelayMillis,
-        Game &game,
-        Debug &debug
+        Debug *debug = nullptr,
+        bool (*exitCondition)() = nullptr
     );
+    void initHardware() override;
     void clear();
     void displayInvalidate();
     void progress(int percentage);
@@ -36,6 +40,7 @@ public:
     void displayNumberBinary(unsigned int number);
     void displayNumberBlinking(unsigned int number);
 private:
+    bool (*_exitCondition)() = nullptr;
     void setRaw(int l3, int l2, int l1, int l0);
     LED_STATE l3 = LED_STATE::OFF;
     LED_STATE l2 = LED_STATE::OFF;
@@ -56,8 +61,7 @@ private:
     unsigned int _ledBlinkStateDelayMillis;
     unsigned int _ledBlinkObviousDelayMillis;
     unsigned long _ledLastBlinkMillis = 0;
-    Game &_game;
-    Debug &_debug;
+    Debug *_debug = nullptr;
 };
 
 #endif

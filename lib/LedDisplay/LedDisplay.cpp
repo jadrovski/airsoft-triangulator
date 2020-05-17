@@ -1,7 +1,6 @@
 #include <Arduino.h>
-#include "util.h"
-#include "Game.h"
-#include "Debug.h"
+#include <util.h>
+#include <Debug.h>
 #include "LedDisplay.h"
 
 LedDisplay::LedDisplay(
@@ -11,9 +10,9 @@ LedDisplay::LedDisplay(
     uint8_t pinLed8,
     unsigned int ledBlinkStateDelayMillis,
     unsigned int ledBlinkObviousDelayMillis,
-    Game &game,
-    Debug &debug
-): _game(game), _debug(debug)
+    Debug *debug,
+    bool (*exitCondition)()
+)
 {
     this->_pinLed1 = pinLed1;
     this->_pinLed2 = pinLed2;
@@ -21,6 +20,8 @@ LedDisplay::LedDisplay(
     this->_pinLed8 = pinLed8;
     this->_ledBlinkStateDelayMillis   = ledBlinkStateDelayMillis;
     this->_ledBlinkObviousDelayMillis = ledBlinkObviousDelayMillis;
+    this->_exitCondition = exitCondition;
+    this->_debug = debug;
 }
 
 //
@@ -37,9 +38,19 @@ void LedDisplay::setRaw(int l3, int l2, int l1, int l0)
     digitalWrite(this->_pinLed8, l3);
 }
 
+void LedDisplay::initHardware()
+{
+    pinMode(this->_pinLed1, OUTPUT);
+    pinMode(this->_pinLed2, OUTPUT);
+    pinMode(this->_pinLed4, OUTPUT);
+    pinMode(this->_pinLed8, OUTPUT);
+}
+
 void LedDisplay::clear()
 {
-    this->_debug.msg(F("LED CLEAR"));
+    if (this->_debug != nullptr) {
+        this->_debug->msg(F("LED CLEAR"));
+    }
     setRaw(LOW, LOW, LOW, LOW);
 }
 
@@ -83,16 +94,20 @@ void LedDisplay::displayNumberBinary(unsigned int number)
 
 void LedDisplay::displayNumberBlinking(unsigned int number)
 {
-    this->_debug.log(F("NUMBER"), number);
+    if (this->_debug != nullptr) {
+        this->_debug->log(F("NUMBER"), (int) number);
+    }
 
-    int num3 = (number / 1000) % 10;
-    int num2 = (number / 100 ) % 10;
-    int num1 = (number / 10  ) % 10;
-    int num0 = (number / 1   ) % 10;
+    unsigned int num3 = (number / 1000) % 10;
+    unsigned int num2 = (number / 100 ) % 10;
+    unsigned int num1 = (number / 10  ) % 10;
+    unsigned int num0 = (number / 1   ) % 10;
 
     while (num0 > 0 || num1 > 0 || num2 > 0 || num3 > 0)
     {
-        if (!this->_game.isKeyConnected()) return;
+        if (_exitCondition != nullptr && _exitCondition()) {
+            return;
+        }
 
         setRaw(
             num3 > 0 ? HIGH : LOW,
@@ -181,7 +196,9 @@ void LedDisplay::displayInvalidate()
 
 void LedDisplay::progress(int percentage)
 {
-    this->_debug.log(F("PROGRESS"), percentage);
+    if (this->_debug != nullptr) {
+        this->_debug->log(F("PROGRESS"), percentage);
+    }
 
     LED_STATE s0 = LED_STATE::OFF;
     LED_STATE s1 = LED_STATE::OFF;

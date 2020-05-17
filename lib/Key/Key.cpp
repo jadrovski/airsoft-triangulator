@@ -1,15 +1,13 @@
 #include <Arduino.h>
-#include "Debug.h"
-#include "Game.h"
+#include <Debug.h>
+#include "Key.h"
 
-Game::Game(
-    uint8_t    pinKeyWakeUp,
+Key::Key(
+    uint8_t    pinKeyWakeUp, //@todo restrict to pin 2 or 3
     uint8_t    pinKeyAdc,
     uint8_t    teamsCount,
-    const int* teamRawValues,
+    const uint16_t* teamRawValues,
     uint8_t    superKeyIdx,
-    uint8_t    deviceId,
-    const unsigned int* radiuses,
     Debug      &debug
 ): _debug(debug)
 {
@@ -18,11 +16,14 @@ Game::Game(
     this->_teamsCount    = teamsCount;
     this->_teamRawValues = teamRawValues;
     this->_superKeyIdx   = superKeyIdx;
-    this->_deviceId      = deviceId;
-    this->_radiuses      = radiuses;
 }
 
-void Game::updateKeyConnectedFlag()
+uint8_t Key::getTeamsCount()
+{
+    return this->_teamsCount;
+}
+
+void Key::updateConnectedFlag()
 {
     this->isKeyConnectedFlag = digitalRead(this->_pinKeyWakeUp);
     if (!this->isKeyConnectedFlag) {
@@ -30,7 +31,7 @@ void Game::updateKeyConnectedFlag()
     }
 }
 
-int Game::getConnectedKeyIdx()
+int Key::getConnectedKeyIdx()
 {
     if (!this->isKeyConnectedFlag) {
         return -1;
@@ -42,7 +43,7 @@ int Game::getConnectedKeyIdx()
         this->_debug.log(F("RAW KEY"), adcRaw);
 
         if (adcRaw) {
-            for (unsigned int i = 0; i < this->_teamsCount; i++) {
+            for (uint8_t i = 0; i < this->_teamsCount; i++) {
                 if (abs(adcRaw - this->_teamRawValues[i]) < 10) {
                     this->connectedKeyIdx = i;
                     this->_debug.log(F("CONNECTED KEY"), this->connectedKeyIdx);
@@ -55,17 +56,16 @@ int Game::getConnectedKeyIdx()
     return this->connectedKeyIdx;
 }
 
-bool Game::isKeyConnected()
+bool Key::isConnected()
 {
     return this->isKeyConnectedFlag && this->getConnectedKeyIdx() != -1;
 }
 
-bool Game::isSuper()
+bool Key::isSuper()
 {
-    return this->isKeyConnectedFlag && this->getConnectedKeyIdx() == this->_superKeyIdx;
+    return this->isConnected() && this->getConnectedKeyIdx() == this->_superKeyIdx;
 }
 
-unsigned int Game::getRadius()
-{
-    return this->_radiuses[this->_deviceId - 1];
+void Key::initHardware() {
+    pinMode(this->_pinKeyWakeUp, INPUT);
 }

@@ -1,6 +1,8 @@
 #include <Arduino.h>
-#include "Debug.h"
+#include <Debug.h>
 #include "Control.h"
+
+const unsigned int Control::TIMELINE_CONTROL_DEBOUNCE_MILLIS = 100;
 
 Control::Control(uint8_t pinBtnLeft, uint8_t pinBtnRight, unsigned int debounceMillis, Debug &debug): _debug(debug)
 {
@@ -46,4 +48,10 @@ void Control::updateState() {
 
     this->_lastBtnLeftState  = btnLeft;
     this->_lastBtnRightState = btnRight;
+}
+
+void Control::initHardware()
+{
+    pinMode(this->_pinBtnLeft, INPUT);
+    pinMode(this->_pinBtnRight, INPUT);
 }
