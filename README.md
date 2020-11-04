@@ -1,6 +1,6 @@
 # Triangulator device 
 
-## For military-based games (such as airsoft, paintball, zarnitsa and so on)
+## For military-based games (such as airsoft, paintball, lasertag and so on)
 
 This project is a firmware for military gaming device, originally written for airsoft gaming.
 
